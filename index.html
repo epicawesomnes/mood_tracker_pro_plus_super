@@ -7,11 +7,40 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Header with name -->
-    <!-- Form for marking your mood -->
-    <!-- Mood history -->
-    <!-- Simple stats -->
-    <!-- Footer -->
+    <header>
+        <h1>Mood tracker</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Mark your mood</h2>
+            <label>My mood today <input type="text" /></label>
+            <button>save it!</button>
+        </section>
+        <section class="history">
+            <h2>Your mood history</h2>
+            <article class="mood_history_art">
+                <h3>13.09.2026</h3>
+                <p>happy</p>
+            </article>
+            <article class="mood_history">
+                <h3>12.09.2026</h3>
+                <p>happy</p>
+            </article>
+            <article class="mood_history">
+                <h3>11.09.2026</h3>
+                <p>very sad</p>
+            </article>
+        </section>
+        <aside>You were happy 66% of time.  It`s natural to feel sad sometimes</aside>
+    </main>
+
+    <footer>
+        <h3> Information about the project</h3>
+        <p>
+            We aim on helping you reflect on your mental problems.
+            You also can buy our premium version for only 9.99$.
+        </p>
+    </footer>
 
     <script src="js/app.js"></script>
 </body>
