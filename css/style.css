@@ -1,0 +1,133 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+@font-face {
+    font-family: "Sugar Magic";
+    src: url("fonts/SugarMagicSerif-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    margin: 0;
+    font-family: "Sugar Magic", sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #40364d;
+    background-color: #f8f1ff;
+}
+
+header {
+    padding: 2rem 1rem;
+    text-align: center;
+    background: linear-gradient(135deg, #d9c2f0, #c4f0dc);
+    border-bottom: 2px solid #b79bd4;
+}
+
+header h1 {
+    margin: 0;
+    color: #57436b;
+    font-size: 2rem;
+}
+
+main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+section {
+    margin-bottom: 1.5rem;
+}
+
+section h2 {
+    margin-top: 0;
+    color: #57436b;
+}
+
+.mood-mark {
+    padding: 1.25rem;
+    background-color: #e3d2f4;
+    border: 1px solid #c9afe4;
+    border-radius: 16px;
+}
+
+.mood-mark label,
+.mood-mark input,
+.mood-mark button {
+    display: block;
+    width: 100%;
+}
+
+.mood-mark label {
+    padding: 0.5rem;
+}
+
+.mood-mark input {
+    padding: 0.65rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #b79bd4;
+    border-radius: 8px;
+    background-color: #fffaff;
+    color: inherit;
+    font: inherit;
+}
+
+.mood-mark button {
+    padding: 0.65rem 1rem;
+    border: 0;
+    border-radius: 8px;
+    background-color: #a9dec3;
+    color: #304b3d;
+    font: inherit;
+    cursor: pointer;
+}
+
+.history {
+    padding: 1.25rem;
+}
+
+article {
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1px solid #e6bda9;
+    border-radius: 16px;
+    background-color: #ffe8dc;
+    box-shadow: 0 3px 8px rgba(87, 67, 107, 0.1);
+}
+
+article:last-child {
+    margin-bottom: 0;
+}
+
+article h3,
+article p {
+    margin: 0;
+}
+
+article h3 {
+    color: #76516a;
+}
+
+aside {
+    padding: 1.25rem;
+    border: 1px solid #a9dec3;
+    border-radius: 16px;
+    background-color: #d9f3e5;
+    color: #385b4a;
+    text-align: center;
+}
+
+footer {
+    padding: 1.5rem 1rem;
+    background-color: #eee5f6;
+    color: #766c80;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+footer h2 {
+    margin-top: 0;
+}
