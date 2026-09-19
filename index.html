@@ -11,28 +11,58 @@
         <h1>Your mood tracker</h1>
     </header>
     <main>
-        <section class="mood-mark">
-            <h2>Mark your mood</h2>
-            <label for="mood">My mood today</label>
-            <input id="mood" type="text">
-            <button>save it!</button>
-        </section>
-        <section class="history">
-            <h2>Your mood history</h2>
-            <article class="mood_history_art">
-                <h3>13.09.2026</h3>
-                <p>happy</p>
-            </article>
-            <article class="mood_history">
-                <h3>12.09.2026</h3>
-                <p>happy</p>
-            </article>
-            <article class="mood_history">
-                <h3>11.09.2026</h3>
-                <p>very sad</p>
-            </article>
-        </section>
-        <aside>You were happy 66% of time.  It`s natural to feel sad sometimes</aside>
+        <div class="main-content">
+            <section class="mood-mark" id="mood-mark">
+                <h2>Mark your mood</h2>
+                <label for="mood">My mood today</label>
+                <input id="mood" type="text">
+                <button>save it!</button>
+            </section>
+            <section class="history" id="history">
+                <h2>Your mood history</h2>
+                <div class="cards">
+                    <article class="mood_history_art">
+                        <h3>13.09.2026</h3>
+                        <p>happy</p>
+                    </article>
+                    <article class="mood_history">
+                        <h3>12.09.2026</h3>
+                        <p>happy</p>
+                    </article>
+                    <article class="mood_history">
+                        <h3>11.09.2026</h3>
+                        <p>very sad</p>
+                    </article>
+                    <article class="mood_history">
+                        <h3>10.09.2026</h3>
+                        <p>calm</p>
+                    </article>
+                    <article class="mood_history">
+                        <h3>09.09.2026</h3>
+                        <p>excited</p>
+                    </article>
+                    <article class="mood_history">
+                        <h3>08.09.2026</h3>
+                        <p>tired</p>
+                    </article>
+                    <article class="mood_history">
+                        <h3>07.09.2026</h3>
+                        <p>grateful</p>
+                    </article>
+                    <article class="mood_history">
+                        <h3>06.09.2026</h3>
+                        <p>anxious</p>
+                    </article>
+                </div>
+            </section>
+        </div>
+        <aside id="summary">
+            <h2>Mood facts</h2>
+            <p>You were happy 25% of the time. It`s natural to feel sad sometimes.</p>
+            <p>Small daily mood notes can help you notice patterns and understand yourself better.</p>
+            <p>A regular sleep routine often makes it easier to manage stress and keep your mood steady.</p>
+            <p>Writing down three things you are grateful for can turn an ordinary day into a more positive memory.</p>
+        </aside>
     </main>
 
     <footer>
