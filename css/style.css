@@ -17,6 +17,7 @@ body {
     line-height: 1.5;
     color: #40364d;
     background-color: #f8f1ff;
+    overflow-x: hidden;
 }
 
 header {
@@ -33,7 +34,8 @@ header {
 header h1 {
     margin: 0;
     color: #57436b;
-    font-size: 2rem;
+    font-size: clamp(1.6rem, 7vw, 2rem);
+    line-height: 1.2;
 }
 
 main {
@@ -41,7 +43,7 @@ main {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     margin: 0 auto;
-    padding: 1.5rem 1rem;
+    padding: clamp(1rem, 4vw, 1.5rem) clamp(0.75rem, 4vw, 1rem);
 }
 
 .main-content section {
@@ -51,10 +53,12 @@ main {
 .main-content section h2 {
     margin-top: 0;
     color: #57436b;
+    font-size: clamp(1.35rem, 6vw, 1.75rem);
+    line-height: 1.25;
 }
 
 .mood-mark {
-    padding: 1.25rem;
+    padding: clamp(1rem, 4vw, 1.25rem);
     background-color: #e3d2f4;
     border: 1px solid #c9afe4;
     border-radius: 16px;
@@ -158,7 +162,7 @@ main {
 }
 
 .history {
-    padding: 1.25rem;
+    padding: clamp(0.5rem, 2vw, 1.25rem);
 }
 
 .cards {
@@ -213,7 +217,7 @@ article h3 {
 }
 
 aside {
-    padding: 1.25rem;
+    padding: clamp(1rem, 4vw, 1.25rem);
     border: 1px solid #a9dec3;
     border-radius: 16px;
     background-color: #d9f3e5;
@@ -234,7 +238,7 @@ aside p:last-child {
 }
 
 footer {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem clamp(0.75rem, 4vw, 1rem);
     background-color: #eee5f6;
     color: #40364d;
     font-size: 0.875rem;
@@ -249,6 +253,40 @@ footer h2 {
 img {
     max-width: 100%;
     height: auto;
+}
+
+@media (max-width: 479px) {
+    header {
+        padding: 1.25rem 0.75rem;
+    }
+
+    .mood-fields {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .mood-mark input,
+    .mood-mark select {
+        width: 100%;
+        min-height: 2.75rem;
+    }
+
+    .mood-mark select {
+        flex: 0 0 2.75rem;
+        height: 2.75rem;
+    }
+
+    .mood-mark button {
+        min-height: 2.75rem;
+    }
+
+    article {
+        padding: 0.75rem;
+    }
+
+    footer p {
+        margin-bottom: 0;
+    }
 }
 
 @media (min-width: 600px) {
