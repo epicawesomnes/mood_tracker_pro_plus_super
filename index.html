@@ -15,53 +15,64 @@
             <section class="mood-mark" id="mood-mark">
                 <h2>Mark your mood</h2>
                 <label for="mood">My mood today</label>
-                <input id="mood" type="text">
+                <div class="mood-fields">
+                    <input id="mood" type="text" placeholder="Add a short note">
+                    <select id="mood-level" name="mood-level" aria-label="Mood level">
+                        <option value="5">Very good</option>
+                        <option value="4">Good</option>
+                        <option value="3" selected>Okay</option>
+                        <option value="2">Bad</option>
+                        <option value="1">Very bad</option>
+                    </select>
+                </div>
                 <button>save it!</button>
             </section>
             <section class="history" id="history">
                 <h2>Your mood history</h2>
                 <div class="cards">
-                    <article class="mood_history_art">
+                    <article class="card_1">
                         <h3>13.09.2026</h3>
-                        <p>happy</p>
+                        <p>very bad</p>
                     </article>
-                    <article class="mood_history">
+                    <article class="card_2">
                         <h3>12.09.2026</h3>
-                        <p>happy</p>
+                        <p>bad</p>
                     </article>
-                    <article class="mood_history">
+                    <article class="card_3">
                         <h3>11.09.2026</h3>
-                        <p>very sad</p>
+                        <p>okay</p>
                     </article>
-                    <article class="mood_history">
+                    <article class="card_4">
                         <h3>10.09.2026</h3>
-                        <p>calm</p>
+                        <p>good</p>
                     </article>
-                    <article class="mood_history">
+                    <article class="card_5">
                         <h3>09.09.2026</h3>
-                        <p>excited</p>
+                        <p>very good</p>
                     </article>
-                    <article class="mood_history">
+                    <article class="card_5">
                         <h3>08.09.2026</h3>
-                        <p>tired</p>
+                        <p>very good</p>
                     </article>
-                    <article class="mood_history">
+                    <article class="card_4">
                         <h3>07.09.2026</h3>
-                        <p>grateful</p>
+                        <p>good</p>
                     </article>
-                    <article class="mood_history">
+                    <article class="card_2">
                         <h3>06.09.2026</h3>
-                        <p>anxious</p>
+                        <p>bad</p>
                     </article>
                 </div>
             </section>
         </div>
         <aside id="summary">
-            <h2>Mood facts</h2>
-            <p>You were happy 25% of the time. It`s natural to feel sad sometimes.</p>
-            <p>Small daily mood notes can help you notice patterns and understand yourself better.</p>
-            <p>A regular sleep routine often makes it easier to manage stress and keep your mood steady.</p>
-            <p>Writing down three things you are grateful for can turn an ordinary day into a more positive memory.</p>
+            <h2>Your mood summary</h2>
+            <b>
+            <p>Your recent moods were 25% very good, 25% good, 13% okay, 25% bad, and 13% very bad.</p>
+            <p>Most of your recent moods were positive or okay. Keep tracking them to notice what affects your wellbeing.</p>
+            <p>A regular sleep routine, enough water, and a short walk can help support a steadier mood.</p>
+            <p>When you feel low, try writing down one small thing you can control or talking to someone you trust.</p>
+            </b>
         </aside>
     </main>
 

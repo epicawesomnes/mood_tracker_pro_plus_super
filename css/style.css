@@ -61,7 +61,6 @@ main {
 }
 
 .mood-mark label,
-.mood-mark input,
 .mood-mark button {
     display: block;
     width: 100%;
@@ -71,9 +70,16 @@ main {
     padding: 0.5rem;
 }
 
-.mood-mark input {
-    padding: 0.65rem;
+.mood-fields {
+    display: flex;
+    gap: 0.75rem;
     margin-bottom: 0.75rem;
+}
+
+.mood-mark input,
+.mood-mark select {
+    min-width: 0;
+    padding: 0.65rem;
     border: 1px solid #b79bd4;
     border-radius: 8px;
     background-color: #fffaff;
@@ -81,14 +87,74 @@ main {
     font: inherit;
 }
 
+.mood-mark input {
+    flex: 1;
+}
+
+.mood-mark select {
+    flex: 0 1 10rem;
+    cursor: pointer;
+}
+
+.mood-mark input:focus,
+.mood-mark select:focus {
+    outline: 3px solid rgba(87, 67, 107, 0.25);
+    outline-offset: 1px;
+}
+
+.mood-mark input::placeholder {
+    color: #766c80;
+}
+
+.mood-mark option[value="1"] {
+    background-color: #f3c5c5;
+    color: #6a3f4a;
+}
+
+.mood-mark option[value="2"] {
+    background-color: #f3d5b5;
+    color: #704d35;
+}
+
+.mood-mark option[value="3"] {
+    background-color: #f4e6b8;
+    color: #66552b;
+}
+
+.mood-mark option[value="4"] {
+    background-color: #cfe6c9;
+    color: #385b3b;
+}
+
+.mood-mark option[value="5"] {
+    background-color: #bfe3cf;
+    color: #2f5c45;
+}
+
 .mood-mark button {
-    padding: 0.65rem 1rem;
+    padding: 0.65rem;
     border: 0;
     border-radius: 8px;
     background-color: #a9dec3;
     color: #304b3d;
     font: inherit;
     cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.mood-mark button:hover {
+    background-color: #96c9ad;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(87, 67, 107, 0.15);
+}
+
+.mood-mark button:active {
+    transform: translateY(0);
+}
+
+.mood-mark button:disabled {
+    opacity: 0.8;
+    cursor: wait;
 }
 
 .history {
@@ -103,10 +169,38 @@ main {
 
 article {
     padding: 14px;
-    border: 1px solid #e6bda9;
     border-radius: 16px;
-    background-color: #ffe8dc;
     box-shadow: 0 3px 8px rgba(87, 67, 107, 0.1);
+}
+
+article.card_1 {
+    border: 1px solid #dca3a3;
+    background-color: #f3c5c5;
+    color: #6a3f4a;
+}
+
+article.card_2 {
+    border: 1px solid #dfb58b;
+    background-color: #f3d5b5;
+    color: #704d35;
+}
+
+article.card_3 {
+    border: 1px solid #ddc887;
+    background-color: #f4e6b8;
+    color: #66552b;
+}
+
+article.card_4 {
+    border: 1px solid #9fc496;
+    background-color: #cfe6c9;
+    color: #385b3b;
+}
+
+article.card_5 {
+    border: 1px solid #8fc5a5;
+    background-color: #bfe3cf;
+    color: #2f5c45;
 }
 
 article h3,
@@ -115,7 +209,7 @@ article p {
 }
 
 article h3 {
-    color: #76516a;
+    color: inherit;
 }
 
 aside {
