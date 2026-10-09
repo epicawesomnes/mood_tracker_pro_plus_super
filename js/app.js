@@ -7,7 +7,7 @@ function average  (moods_array) {
     for (let mood_date of moods_array) { 
         avarage_val += mood_date[1];
     }
-    return avarage_val/(moods_array.length - 1);
+    return avarage_val/(moods_array.length);
 }
 
 if (average (mood_array) >= 3){
