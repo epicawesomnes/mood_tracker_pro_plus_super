@@ -177,31 +177,31 @@ article {
     box-shadow: 0 3px 8px rgba(87, 67, 107, 0.1);
 }
 
-article.card_1 {
+article.card_very_bad {
     border: 1px solid #dca3a3;
     background-color: #f3c5c5;
     color: #6a3f4a;
 }
 
-article.card_2 {
+article.card_bad {
     border: 1px solid #dfb58b;
     background-color: #f3d5b5;
     color: #704d35;
 }
 
-article.card_3 {
+article.card_okay {
     border: 1px solid #ddc887;
     background-color: #f4e6b8;
     color: #66552b;
 }
 
-article.card_4 {
+article.card_good {
     border: 1px solid #9fc496;
     background-color: #cfe6c9;
     color: #385b3b;
 }
 
-article.card_5 {
+article.card_very_good {
     border: 1px solid #8fc5a5;
     background-color: #bfe3cf;
     color: #2f5c45;
