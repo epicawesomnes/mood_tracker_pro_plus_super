@@ -88,7 +88,7 @@ function updStats(articles) {
         sum2.textContent = genSumTxt2(articles);
     }
 
-    const sum3 = document.querySelector('p#sumtxt3');
+    const sum3 = document.querySelector('p#avg-mood');
     if (sum3) {
         sum3.textContent = genSumTxt3(articles);
     }
