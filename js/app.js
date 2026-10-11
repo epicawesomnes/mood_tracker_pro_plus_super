@@ -63,8 +63,7 @@ function renderArticles(articles){
         // card.classList.toggle('card_very_good', moodToLabel(article.moodLevel) === 'very_good');
         // клас додається умовно, заглушка для тз
 
-        card.setAttribute('alt', 'mood_history_card')
-        //заглушка для тз, ніякі інші атрибути придумати не зміг
+        card.setAttribute('data-mood', `${article.moodLevel}`)
 
         const date = document.createElement('h3');
         date.textContent = article.DateTime.toLocaleDateString('uk-UA');
