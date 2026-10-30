@@ -15,14 +15,22 @@ const generalTips = [
     "Talking to a friend can make a heavy day feel lighter.",
 ];
 
+//returns the date n days before today (midnight)
+function daysAgo(n){
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - n);
+    return date;
+}
+
 const moodHistory = [
-    new MoodCard(1, "very bad, nothing worked today"),
-    new MoodCard(2, "tired after classes"),
-    new MoodCard(3, "just a regular day"),
-    new MoodCard(4, "finished the lab on time"),
-    new MoodCard(5, "great day, met friends"),
-    new MoodCard(3, "okay, a bit sleepy"),
-    new MoodCard(4, "good walk in the evening"),
+    new MoodCard(1, "very bad, nothing worked today", daysAgo(7)),
+    new MoodCard(2, "tired after classes", daysAgo(6)),
+    new MoodCard(3, "just a regular day", daysAgo(5)),
+    new MoodCard(4, "finished the lab on time", daysAgo(4)),
+    new MoodCard(5, "great day, met friends", daysAgo(3)),
+    new MoodCard(3, "okay, a bit sleepy", daysAgo(2)),
+    new MoodCard(4, "good walk in the evening", daysAgo(1)),
 ]
 const moods = ["very_bad", "bad", "okay", "good", "very_good"]
 
@@ -41,11 +49,10 @@ const balanceTips = {
     ],
 };
 
-const all_cards = document.querySelectorAll("article.card_1, article.card_2, article.card_3, article.card_4, article.card_5");
-for (let card of all_cards){
-    card.remove();
+// сортує записи за датою: нові - перші
+function sortByDate(articles){
+    articles.sort((a, b) => b.DateTime - a.DateTime);
 }
-
 
 // рендерить картки з настроєм з масиву
 function renderArticles(articles){
@@ -169,6 +176,7 @@ else {
 //translates numerical value to mood level
 const moodToLabel = mood => moods[mood-1];
 
+sortByDate(moodHistory);
 renderArticles(moodHistory);
 updStats(moodHistory);
 
@@ -207,6 +215,7 @@ form.addEventListener('submit', event => {
     const note = noteInput.value.trim();
 
     moodHistory.push(new MoodCard(moodLevel, note, date));
+    sortByDate(moodHistory);
 
     renderArticles(moodHistory);
     updStats(moodHistory);

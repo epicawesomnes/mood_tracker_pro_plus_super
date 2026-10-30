@@ -116,7 +116,6 @@ main {
 #mood-note {
     display: block;
     width: 100%;
-    box-sizing: border-box;
 }
 
 .note-counter {
@@ -126,7 +125,7 @@ main {
     text-align: right;
 }
 
-.mood-mark input:invalid:not(:placeholder-shown) {
+.mood-mark input:user-invalid {
     border-color: #c46a7a;
 }
 
@@ -292,7 +291,6 @@ img {
     .mood-mark input,
     .mood-mark select {
         width: 100%;
-        box-sizing: border-box;
         min-height: 2.75rem;
     }
 
