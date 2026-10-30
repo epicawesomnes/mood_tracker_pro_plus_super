@@ -32,7 +32,12 @@
                 </form>
             </section>
             <section class="history" id="history">
-                <h2>Your mood history</h2>
+                <div class="history-head">
+                    <h2>Your mood history</h2>
+                    <button type="button" id="refresh-btn">Refresh</button>
+                </div>
+                <p class="load-status" id="load-status" hidden>Loading records…</p>
+                <p class="load-error" id="load-error" role="alert" hidden></p>
                 <div class="cards"></div>
             </section>
         </div>

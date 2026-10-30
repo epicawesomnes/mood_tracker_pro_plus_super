@@ -1,8 +1,13 @@
+// API для записів настрою (мок-дані JSONPlaceholder): https://jsonplaceholder.typicode.com/
+const API_URL = 'https://jsonplaceholder.typicode.com/comments?postId=1';
+
 class MoodCard {
-    constructor(moodLevel, note, dateTime = new Date()){
+    constructor(moodLevel, note, dateTime = new Date(), title = '', email = ''){
         this.DateTime = dateTime;
         this.moodLevel = moodLevel;
         this.note = note;
+        this.title = title;
+        this.email = email;
     }
 }
 
@@ -23,15 +28,10 @@ function daysAgo(n){
     return date;
 }
 
-const moodHistory = [
-    new MoodCard(1, "very bad, nothing worked today", daysAgo(7)),
-    new MoodCard(2, "tired after classes", daysAgo(6)),
-    new MoodCard(3, "just a regular day", daysAgo(5)),
-    new MoodCard(4, "finished the lab on time", daysAgo(4)),
-    new MoodCard(5, "great day, met friends", daysAgo(3)),
-    new MoodCard(3, "okay, a bit sleepy", daysAgo(2)),
-    new MoodCard(4, "good walk in the evening", daysAgo(1)),
-]
+// записи з API + записи, додані через форму
+const moodHistory = [];
+// записи, отримані з API під час останнього завантаження
+let apiRecords = [];
 const moods = ["very_bad", "bad", "okay", "good", "very_good"]
 
 const balanceTips = {
@@ -74,16 +74,35 @@ function renderArticles(articles){
 
         const date = document.createElement('h3');
         date.textContent = article.DateTime.toLocaleDateString('uk-UA');
+        card.append(date);
+
+        if (article.title) {
+            const title = document.createElement('h4');
+            title.textContent = article.title;
+            card.append(title);
+        }
 
         const text = document.createElement('p');
         text.textContent = article.note;
+        card.append(text);
 
-        card.append(date, text);
+        if (article.email) {
+            const email = document.createElement('small');
+            email.textContent = article.email;
+            card.append(email);
+        }
+
         cards.append(card);
     });
 }
 // оновлює статистику за середніми показниками настрою
 function updStats(articles) {
+    if (articles.length === 0) {
+        document.querySelectorAll('#summary p').forEach(p => p.textContent = '');
+        document.querySelector('p#sumtxt1').textContent = 'No mood records yet.';
+        return;
+    }
+
     const sum1 = document.querySelector('p#sumtxt1');
 
     if (sum1) {
@@ -166,19 +185,74 @@ function average  (moods_array) {
     return avarage_val/(moods_array.length);
 }
 
-if (average (moodHistory) >= 3){
-    console.log("Good week");
-}
-else {
-    console.log("Bad week");
+function logWeek(){
+    if (average (moodHistory) >= 3){
+        console.log("Good week");
+    }
+    else {
+        console.log("Bad week");
+    }
 }
 
 //translates numerical value to mood level
 const moodToLabel = mood => moods[mood-1];
 
-sortByDate(moodHistory);
-renderArticles(moodHistory);
+// мок-запис з API -> MoodCard: name - заголовок, body - нотатка, email - автор;
+// рівня настрою і дати в мок-даних немає, тож вони виводяться з id
+function commentToMoodCard(comment){
+    const moodLevel = (comment.id % 5) + 1;
+    return new MoodCard(moodLevel, comment.body, daysAgo(comment.id), comment.name, comment.email);
+}
+
+const refreshBtn = document.querySelector('#refresh-btn');
+const loadStatus = document.querySelector('#load-status');
+const loadError = document.querySelector('#load-error');
+
+function showLoading(isLoading){
+    loadStatus.hidden = !isLoading;
+    refreshBtn.disabled = isLoading;
+}
+
+function showError(message){
+    loadError.textContent = message;
+    loadError.hidden = message === '';
+}
+
+// завантажує записи настрою з JSONPlaceholder (https://jsonplaceholder.typicode.com/comments?postId=1)
+// і перемальовує список; записи, додані через форму, не губляться
+async function loadData(){
+    showLoading(true);
+    showError('');
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+            throw new Error(`Server responded with status ${response.status}`);
+        }
+        const data = await response.json();
+        console.log(data);
+
+        const localRecords = moodHistory.filter(card => !apiRecords.includes(card));
+        apiRecords = data.map(commentToMoodCard);
+        moodHistory.length = 0;
+        moodHistory.push(...localRecords, ...apiRecords);
+        sortByDate(moodHistory);
+
+        renderArticles(moodHistory);
+        updStats(moodHistory);
+        logWeek();
+    } catch (error) {
+        showError('Записи тимчасово недоступні');
+        console.error(error);
+    } finally {
+        showLoading(false);
+    }
+}
+
+// кнопка «Refresh» - повторний запит без перезавантаження сторінки
+refreshBtn.addEventListener('click', loadData);
+
 updStats(moodHistory);
+loadData();
 
 
 const form = document.querySelector('#mood-form');
