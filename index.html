@@ -14,18 +14,22 @@
         <div class="main-content">
             <section class="mood-mark" id="mood-mark">
                 <h2>Mark your mood</h2>
-                <label for="mood">My mood today</label>
-                <div class="mood-fields">
-                    <input id="mood" type="text" placeholder="Add a short note">
-                    <select id="mood-level" name="mood-level" aria-label="Mood level">
-                        <option value="5">Very good</option>
-                        <option value="4">Good</option>
-                        <option value="3" selected>Okay</option>
-                        <option value="2">Bad</option>
-                        <option value="1">Very bad</option>
-                    </select>
-                </div>
-                <button>save it!</button>
+                <form id="mood-form">
+                    <div class="mood-fields">
+                        <div class="field">
+                            <label for="mood-date">Date</label>
+                            <input id="mood-date" name="date" type="date" required>
+                        </div>
+                        <div class="field">
+                            <label for="mood-level">Mood (1 - 5)</label>
+                            <input id="mood-level" name="mood" type="number" min="1" max="5" placeholder="3" required>
+                        </div>
+                    </div>
+                    <label for="mood-note">Short note</label>
+                    <input id="mood-note" name="note" type="text" maxlength="200" placeholder="Add a short note">
+                    <p class="note-counter" id="note-counter">200 characters left</p>
+                    <button type="submit">save it!</button>
+                </form>
             </section>
             <section class="history" id="history">
                 <h2>Your mood history</h2>

@@ -106,6 +106,30 @@ main {
     outline-offset: 1px;
 }
 
+.mood-fields .field {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+}
+
+#mood-note {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.note-counter {
+    margin: 0.35rem 0 0.75rem;
+    font-size: 0.85rem;
+    color: #766c80;
+    text-align: right;
+}
+
+.mood-mark input:invalid:not(:placeholder-shown) {
+    border-color: #c46a7a;
+}
+
 .mood-mark input::placeholder {
     color: #766c80;
 }
@@ -268,6 +292,7 @@ img {
     .mood-mark input,
     .mood-mark select {
         width: 100%;
+        box-sizing: border-box;
         min-height: 2.75rem;
     }
 

@@ -1,6 +1,6 @@
 class MoodCard {
-    constructor(moodLevel, note){
-        this.DateTime = new Date();
+    constructor(moodLevel, note, dateTime = new Date()){
+        this.DateTime = dateTime;
         this.moodLevel = moodLevel;
         this.note = note;
     }
@@ -171,3 +171,47 @@ const moodToLabel = mood => moods[mood-1];
 
 renderArticles(moodHistory);
 updStats(moodHistory);
+
+
+const form = document.querySelector('#mood-form');
+const dateInput = document.querySelector('#mood-date');
+const moodInput = document.querySelector('#mood-level');
+const noteInput = document.querySelector('#mood-note');
+const noteCounter = document.querySelector('#note-counter');
+
+// оновлює лічильник символів, що залишилися до maxlength нотатки
+function updNoteCounter(){
+    const left = noteInput.maxLength - noteInput.value.length;
+    noteCounter.textContent = `${left} characters left`;
+}
+
+// додаткова валідація mood: значення має бути в межах 1-5
+moodInput.addEventListener('input', () => {
+    const value = Number(moodInput.value);
+    if (moodInput.value !== '' && (value < 1 || value > 5)) {
+        moodInput.setCustomValidity('Mood must be between 1 and 5');
+    } else {
+        moodInput.setCustomValidity('');
+    }
+});
+
+// лічильник символів нотатки оновлюється на кожне натискання
+noteInput.addEventListener('input', updNoteCounter);
+
+// сабміт форми: додає новий запис у масив і перемальовує список без перезавантаження
+form.addEventListener('submit', event => {
+    event.preventDefault();
+
+    const date = new Date(`${dateInput.value}T00:00`);
+    const moodLevel = Number(moodInput.value);
+    const note = noteInput.value.trim();
+
+    moodHistory.push(new MoodCard(moodLevel, note, date));
+
+    renderArticles(moodHistory);
+    updStats(moodHistory);
+
+    form.reset();
+    moodInput.setCustomValidity('');
+    updNoteCounter();
+});
