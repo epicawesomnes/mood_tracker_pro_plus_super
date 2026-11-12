@@ -272,7 +272,7 @@ footer h2 {
     margin-top: 0;
 }
 
-/* хоч і зображень нема, але тз є тз */
+/* there are no images yet, but the assignment requires this rule */
 img {
     max-width: 100%;
     height: auto;
@@ -344,4 +344,33 @@ img {
     .cards {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+}
+
+.entry-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.mood-emoji {
+    flex: none;
+    padding: 0.1rem 0.35rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.mood-emoji:hover {
+    background-color: rgba(255, 255, 255, 0.45);
+    transform: scale(1.12);
+}
+
+.mood-emoji:focus-visible {
+    outline: 3px solid rgba(87, 67, 107, 0.35);
+    outline-offset: 1px;
 }
