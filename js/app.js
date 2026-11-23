@@ -189,11 +189,16 @@ async function deleteItem(id){
 // the "migrated" flag keeps it from running (and duplicating data) on every page load
 async function migrateFromLocalStorage(){
     if (lsGet(LS_MIGRATED_KEY) === 'true') {
+        console.log('Migration skipped: already done earlier (moodEntriesMigrated = true)');
         return;
     }
     const existing = await getAllItems();
     const legacy = loadFromLocalStorage();
-    if (existing.length === 0 && legacy.length > 0) {
+    if (existing.length > 0) {
+        console.log(`Migration skipped: IndexedDB already has ${existing.length} records`);
+    } else if (legacy.length === 0) {
+        console.log('Migration skipped: no records in localStorage');
+    } else {
         await addItems(legacy);
         console.log(`Migrated ${legacy.length} mood records from localStorage to IndexedDB`);
     }
