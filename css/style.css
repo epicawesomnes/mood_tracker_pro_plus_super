@@ -420,3 +420,42 @@ img {
     margin: 0 0 0.75rem;
     opacity: 0.75;
 }
+
+/* lab 12: mood trend chart (Canvas) */
+.mood-chart {
+    padding: clamp(0.5rem, 2vw, 1.25rem);
+}
+
+.chart-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+}
+
+.chart-range select {
+    margin: 0 0.25rem;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid #b79bd4;
+    border-radius: 8px;
+    background-color: #fffaff;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+#mood-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #c9afe4;
+    border-radius: 16px;
+    background-color: #fffaff;
+    cursor: crosshair;
+}
+
+.chart-hint {
+    margin: 0.5rem 0 0;
+    opacity: 0.75;
+}

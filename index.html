@@ -31,6 +31,23 @@
                     <button type="submit">save it!</button>
                 </form>
             </section>
+            <section class="mood-chart" id="mood-chart">
+                <div class="chart-head">
+                    <h2>Your mood trend</h2>
+                    <label class="chart-range">
+                        last
+                        <select id="chart-range">
+                            <option value="7" selected>7</option>
+                            <option value="14">14</option>
+                            <option value="30">30</option>
+                        </select>
+                        entries
+                    </label>
+                </div>
+                <canvas id="mood-canvas" width="640" height="260" role="img"
+                        aria-label="Line chart of your mood over the last entries"></canvas>
+                <p class="chart-hint" id="chart-hint">Add at least two entries to see the trend.</p>
+            </section>
             <section class="history" id="history"></section>
         </div>
         <aside id="summary">
