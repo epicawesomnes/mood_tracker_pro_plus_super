@@ -1,15 +1,3 @@
-/*
- * Lab 10. Framework: Vue 3 (global CDN build, no Node.js or bundler).
- * Why Vue over React: Vue needs a single <script> tag and no Babel, its templates are plain HTML
- * with directives (v-for, @click), so the existing card markup moves over almost unchanged,
- * and its reactivity on direct data changes fits well with the rest of the vanilla code
- * (the form and the summary stay on the DOM API and just pass data into Vue state).
- *
- * Lab 11 (variant 3). Mood records are kept between page reloads: first in localStorage
- * (JSON.stringify/parse), now in IndexedDB (database "MoodTrackerDB", store "moodEntries",
- * keyPath "id" with autoIncrement). Records saved earlier in localStorage are moved into
- * IndexedDB once; if IndexedDB is unavailable, the app falls back to localStorage.
- */
 
 class MoodCard {
     constructor(moodLevel, note, dateTime = new Date(), id = null){
@@ -28,27 +16,6 @@ const generalTips = [
     "Take short breaks from screens during study sessions.",
     "Talking to a friend can make a heavy day feel lighter.",
 ];
-
-// returns the date n days before today (midnight)
-function daysAgo(n){
-    const date = new Date();
-    date.setHours(0, 0, 0, 0);
-    date.setDate(date.getDate() - n);
-    return date;
-}
-
-// returns the demo mood records shown on the very first launch
-function initialMoodHistory(){
-    return [
-        new MoodCard(1, "very bad, nothing worked today", daysAgo(7)),
-        new MoodCard(2, "tired after classes", daysAgo(6)),
-        new MoodCard(3, "just a regular day", daysAgo(5)),
-        new MoodCard(4, "finished the lab on time", daysAgo(4)),
-        new MoodCard(5, "great day, met friends", daysAgo(3)),
-        new MoodCard(3, "okay, a bit sleepy", daysAgo(2)),
-        new MoodCard(4, "good walk in the evening", daysAgo(1)),
-    ];
-}
 
 
 /* ===================== Data model ===================== */
@@ -88,7 +55,6 @@ function isValidRecord(record){
 
 const LS_KEY = 'moodEntries';
 const LS_MIGRATED_KEY = 'moodEntriesMigrated';
-const LS_SEEDED_KEY = 'moodEntriesSeeded';
 
 // safe wrappers: localStorage itself can throw when site data is blocked
 function lsGet(key){
@@ -232,18 +198,6 @@ async function migrateFromLocalStorage(){
         console.log(`Migrated ${legacy.length} mood records from localStorage to IndexedDB`);
     }
     lsSet(LS_MIGRATED_KEY, 'true');
-}
-
-// fills an empty database with demo records, but only on the very first launch
-async function seedDemoData(){
-    if (lsGet(LS_SEEDED_KEY) === 'true') {
-        return;
-    }
-    const existing = await getAllItems();
-    if (existing.length === 0) {
-        await addItems(initialMoodHistory().map(toRecord));
-    }
-    lsSet(LS_SEEDED_KEY, 'true');
 }
 
 
@@ -443,7 +397,6 @@ const historyApp = Vue.createApp({
             try {
                 await openDB();
                 await migrateFromLocalStorage();
-                await seedDemoData();
                 await this.refresh();
             } catch (error) {
                 console.error('Could not open IndexedDB:', error);
@@ -460,11 +413,8 @@ const historyApp = Vue.createApp({
             const records = await getAllItems();
             this.entries = records.map(fromRecord);
         },
-        // fallback: reads records from localStorage (demo data on the very first launch)
+        // fallback: reads records from localStorage
         loadLocal() {
-            if (lsGet(LS_KEY) === null) {
-                saveToLocalStorage(initialMoodHistory().map((card, i) => ({ ...toRecord(card), id: i + 1 })));
-            }
             this.entries = loadFromLocalStorage().map(fromRecord);
         },
         // fallback: writes the current list to localStorage after every change
