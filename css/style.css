@@ -374,3 +374,49 @@ img {
     outline: 3px solid rgba(87, 67, 107, 0.35);
     outline-offset: 1px;
 }
+
+.entry-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.delete-entry {
+    flex: none;
+    width: 1.9rem;
+    height: 1.9rem;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0.55;
+    cursor: pointer;
+}
+
+.delete-entry:hover {
+    background-color: rgba(255, 255, 255, 0.45);
+    opacity: 1;
+}
+
+.delete-entry:focus-visible {
+    outline: 3px solid rgba(87, 67, 107, 0.35);
+    outline-offset: 1px;
+    opacity: 1;
+}
+
+.storage-status {
+    margin: 0 0 0.75rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #dfb58b;
+    border-radius: 12px;
+    background-color: #f3d5b5;
+    color: #704d35;
+}
+
+.history-empty {
+    margin: 0 0 0.75rem;
+    opacity: 0.75;
+}

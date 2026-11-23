@@ -4,22 +4,20 @@
  * with directives (v-for, @click), so the existing card markup moves over almost unchanged,
  * and its reactivity on direct data changes fits well with the rest of the vanilla code
  * (the form and the summary stay on the DOM API and just pass data into Vue state).
+ *
+ * Lab 11 (variant 3). Mood records are kept between page reloads: first in localStorage
+ * (JSON.stringify/parse), now in IndexedDB (database "MoodTrackerDB", store "moodEntries",
+ * keyPath "id" with autoIncrement). Records saved earlier in localStorage are moved into
+ * IndexedDB once; if IndexedDB is unavailable, the app falls back to localStorage.
  */
 
 class MoodCard {
-    constructor(moodLevel, note, dateTime = new Date()){
-        this.id = nextId();
+    constructor(moodLevel, note, dateTime = new Date(), id = null){
+        this.id = id; // assigned by IndexedDB (autoIncrement) when the record is saved
         this.DateTime = dateTime;
         this.moodLevel = moodLevel;
         this.note = note;
     }
-}
-
-// returns a unique id for a mood record
-let idCounter = 0;
-function nextId(){
-    idCounter++;
-    return idCounter;
 }
 
 const generalTips = [
@@ -39,7 +37,7 @@ function daysAgo(n){
     return date;
 }
 
-// returns the starting list of mood records
+// returns the demo mood records shown on the very first launch
 function initialMoodHistory(){
     return [
         new MoodCard(1, "very bad, nothing worked today", daysAgo(7)),
@@ -51,6 +49,205 @@ function initialMoodHistory(){
         new MoodCard(4, "good walk in the evening", daysAgo(1)),
     ];
 }
+
+
+/* ===================== Data model ===================== */
+// One stored record (variant 3): { id: number, date: 'YYYY-MM-DD', mood: 1-5, note: string }
+
+// formats a Date as 'YYYY-MM-DD' in local time
+function toDateString(date){
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+// MoodCard -> plain record for storage (no id yet = IndexedDB will generate one)
+function toRecord(card){
+    const record = { date: toDateString(card.DateTime), mood: card.moodLevel, note: card.note };
+    if (card.id !== null && card.id !== undefined) {
+        record.id = card.id;
+    }
+    return record;
+}
+
+// plain record from storage -> MoodCard used by the UI
+function fromRecord(record){
+    return new MoodCard(record.mood, record.note, new Date(`${record.date}T00:00`), record.id);
+}
+
+// checks that a record read from storage has the expected shape
+function isValidRecord(record){
+    return record !== null && typeof record === 'object'
+        && Number.isInteger(record.mood) && record.mood >= 1 && record.mood <= 5
+        && typeof record.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(record.date);
+}
+
+
+/* ===================== localStorage ===================== */
+
+const LS_KEY = 'moodEntries';
+const LS_MIGRATED_KEY = 'moodEntriesMigrated';
+const LS_SEEDED_KEY = 'moodEntriesSeeded';
+
+// safe wrappers: localStorage itself can throw when site data is blocked
+function lsGet(key){
+    try {
+        return localStorage.getItem(key);
+    } catch (error) {
+        return null;
+    }
+}
+
+function lsSet(key, value){
+    try {
+        localStorage.setItem(key, value);
+        return true;
+    } catch (error) {
+        console.error('localStorage is not available:', error);
+        return false;
+    }
+}
+
+// saves the array of records to localStorage as a JSON string
+function saveToLocalStorage(items){
+    return lsSet(LS_KEY, JSON.stringify(items));
+}
+
+// reads the array of records from localStorage; damaged data -> empty list
+function loadFromLocalStorage(){
+    try {
+        const raw = lsGet(LS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed.filter(isValidRecord) : [];
+    } catch (error) {
+        console.error('Damaged data in localStorage:', error);
+        return [];
+    }
+}
+
+
+/* ===================== IndexedDB ===================== */
+
+const DB_NAME = 'MoodTrackerDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'moodEntries';
+
+let dbPromise = null;
+
+// opens (and on first run creates) the database; the connection is reused by all operations
+function openDB(){
+    if (dbPromise) {
+        return dbPromise;
+    }
+    dbPromise = new Promise((resolve, reject) => {
+        if (!window.indexedDB) {
+            reject(new Error('IndexedDB is not supported'));
+            return;
+        }
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        // runs only when the database is new or its version is lower than DB_VERSION
+        request.onupgradeneeded = event => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+            }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+    // a failed attempt should not be cached forever
+    dbPromise.catch(() => { dbPromise = null; });
+    return dbPromise;
+}
+
+// adds a record (or overwrites one with the same id) via put; resolves with the record's id
+async function addItem(item){
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const request = tx.objectStore(STORE_NAME).put(item);
+        tx.oncomplete = () => resolve(request.result);
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+    });
+}
+
+// updates an existing record: put with the same id replaces it instead of creating a duplicate
+async function updateItem(item){
+    if (item.id === undefined) {
+        throw new Error('updateItem needs a record with an id');
+    }
+    return addItem(item);
+}
+
+// adds several records in one transaction: either all of them are saved or none
+async function addItems(items){
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        items.forEach(item => store.put(item));
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+    });
+}
+
+// reads all records from the store
+async function getAllItems(){
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const request = tx.objectStore(STORE_NAME).getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// deletes the record with the given id
+async function deleteItem(id){
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+    });
+}
+
+// one-time move of records saved in localStorage into IndexedDB;
+// the "migrated" flag keeps it from running (and duplicating data) on every page load
+async function migrateFromLocalStorage(){
+    if (lsGet(LS_MIGRATED_KEY) === 'true') {
+        return;
+    }
+    const existing = await getAllItems();
+    const legacy = loadFromLocalStorage();
+    if (existing.length === 0 && legacy.length > 0) {
+        await addItems(legacy);
+        console.log(`Migrated ${legacy.length} mood records from localStorage to IndexedDB`);
+    }
+    lsSet(LS_MIGRATED_KEY, 'true');
+}
+
+// fills an empty database with demo records, but only on the very first launch
+async function seedDemoData(){
+    if (lsGet(LS_SEEDED_KEY) === 'true') {
+        return;
+    }
+    const existing = await getAllItems();
+    if (existing.length === 0) {
+        await addItems(initialMoodHistory().map(toRecord));
+    }
+    lsSet(LS_SEEDED_KEY, 'true');
+}
+
+
+/* ===================== Summary ===================== */
 
 const balanceTips = {
     low: [
@@ -69,20 +266,23 @@ const balanceTips = {
 
 // updates the summary texts based on the mood records
 function updStats(articles) {
-    const sum1 = document.querySelector('p#sumtxt1');
+    const empty = articles.length === 0;
 
+    const sum1 = document.querySelector('p#sumtxt1');
     if (sum1) {
-        sum1.textContent = genSumTxt1(articles);
+        sum1.textContent = empty
+            ? "You have no mood entries yet. Add one with the form to see your summary."
+            : genSumTxt1(articles);
     }
 
     const sum2 = document.querySelector('p#sumtxt2');
     if (sum2) {
-        sum2.textContent = genSumTxt2(articles);
+        sum2.textContent = empty ? "" : genSumTxt2(articles);
     }
 
     const sum3 = document.querySelector('p#avg-mood');
     if (sum3) {
-        sum3.textContent = genSumTxt3(articles);
+        sum3.textContent = empty ? "" : genSumTxt3(articles);
     }
 
     const sum4 = document.querySelector('p#sumtxt4');
@@ -155,6 +355,9 @@ function average  (moods_array) {
 
 // logs whether the week was good or bad
 function logWeek(articles){
+    if (articles.length === 0) {
+        return;
+    }
     if (average(articles) >= 3){
         console.log("Good week");
     }
@@ -163,6 +366,9 @@ function logWeek(articles){
     }
 }
 
+
+/* ===================== Vue UI ===================== */
+
 // card for a single mood record; emoji, card class and date are computed from props
 const MoodEntry = {
     props: {
@@ -170,7 +376,7 @@ const MoodEntry = {
         mood: { type: Number, required: true, validator: value => value >= 1 && value <= 5 },
         note: { type: String, default: '' },
     },
-    emits: ['cycle-mood'],
+    emits: ['cycle-mood', 'delete'],
     computed: {
         emoji() {
             return ['😞', '🙁', '😐', '🙂', '😄'][this.mood - 1];
@@ -186,21 +392,30 @@ const MoodEntry = {
         <article :class="'card_' + label" :data-mood="mood">
             <div class="entry-head">
                 <h3>{{ formattedDate }}</h3>
-                <button type="button" class="mood-emoji"
-                        :title="'Mood ' + mood + '/5 - click to change'"
-                        :aria-label="'Mood ' + mood + ' of 5, change mood'"
-                        @click="$emit('cycle-mood')">{{ emoji }}</button>
+                <div class="entry-actions">
+                    <button type="button" class="mood-emoji"
+                            :title="'Mood ' + mood + '/5 - click to change'"
+                            :aria-label="'Mood ' + mood + ' of 5, change mood'"
+                            @click="$emit('cycle-mood')">{{ emoji }}</button>
+                    <button type="button" class="delete-entry"
+                            title="Delete entry"
+                            :aria-label="'Delete entry from ' + formattedDate"
+                            @click="$emit('delete')">✕</button>
+                </div>
             </div>
             <p>{{ note }}</p>
         </article>`,
 };
 
-// mood history section: holds the records and renders them as MoodEntry cards
+// mood history section: loads records from IndexedDB and renders them as MoodEntry cards
 const historyApp = Vue.createApp({
     components: { MoodEntry },
     data() {
         return {
-            entries: initialMoodHistory(),
+            entries: [],
+            loading: true,
+            useIndexedDB: true,   // false = IndexedDB failed to open, records live in localStorage
+            storageMessage: '',
         };
     },
     computed: {
@@ -210,31 +425,108 @@ const historyApp = Vue.createApp({
         },
     },
     watch: {
-        // refreshes the summary whenever records are added or changed
+        // refreshes the summary whenever records are loaded, added or changed
         entries: {
             handler() {
                 updStats(this.sortedEntries);
                 logWeek(this.entries);
             },
             deep: true,
-            immediate: true,
         },
     },
+    async mounted() {
+        await this.init();
+    },
     methods: {
-        // adds a new record to the list
-        addEntry(card) {
-            this.entries.push(card);
-        },
-        // switches the record's mood to the next level (5 wraps to 1)
-        cycleMood(id) {
-            const entry = this.entries.find(e => e.id === id);
-            if (entry) {
-                entry.moodLevel = (entry.moodLevel % 5) + 1;
+        // opens the database, runs the one-time migration and shows the stored records
+        async init() {
+            try {
+                await openDB();
+                await migrateFromLocalStorage();
+                await seedDemoData();
+                await this.refresh();
+            } catch (error) {
+                console.error('Could not open IndexedDB:', error);
+                this.useIndexedDB = false;
+                this.storageMessage = 'Your browser does not allow IndexedDB here (for example, in private browsing), '
+                    + 'so entries are saved in localStorage instead.';
+                this.loadLocal();
+            } finally {
+                this.loading = false;
             }
+        },
+        // re-reads the whole list from IndexedDB, so the screen always matches the database
+        async refresh() {
+            const records = await getAllItems();
+            this.entries = records.map(fromRecord);
+        },
+        // fallback: reads records from localStorage (demo data on the very first launch)
+        loadLocal() {
+            if (lsGet(LS_KEY) === null) {
+                saveToLocalStorage(initialMoodHistory().map((card, i) => ({ ...toRecord(card), id: i + 1 })));
+            }
+            this.entries = loadFromLocalStorage().map(fromRecord);
+        },
+        // fallback: writes the current list to localStorage after every change
+        saveLocal() {
+            if (!saveToLocalStorage(this.entries.map(toRecord))) {
+                this.storageMessage = 'Changes could not be saved: browser storage is not available.';
+            }
+        },
+        // runs a database operation and reports a failure to the user instead of failing silently
+        async runDbOperation(operation) {
+            try {
+                await operation();
+                await this.refresh();
+                return true;
+            } catch (error) {
+                console.error('IndexedDB operation failed:', error);
+                this.storageMessage = 'Could not save the change. Please try again.';
+                return false;
+            }
+        },
+        // create: adds a new record
+        async addEntry(card) {
+            if (!this.useIndexedDB) {
+                card.id = this.entries.reduce((max, e) => Math.max(max, e.id), 0) + 1;
+                this.entries.push(card);
+                this.saveLocal();
+                return true;
+            }
+            return this.runDbOperation(() => addItem(toRecord(card)));
+        },
+        // update: switches the record's mood to the next level (5 wraps to 1)
+        async cycleMood(id) {
+            const entry = this.entries.find(e => e.id === id);
+            if (!entry) {
+                return;
+            }
+            const nextMood = (entry.moodLevel % 5) + 1;
+            if (!this.useIndexedDB) {
+                entry.moodLevel = nextMood;
+                this.saveLocal();
+                return;
+            }
+            await this.runDbOperation(() => updateItem({ ...toRecord(entry), mood: nextMood }));
+        },
+        // delete: removes the record after confirmation
+        async deleteEntry(id) {
+            if (!confirm('Delete this mood entry?')) {
+                return;
+            }
+            if (!this.useIndexedDB) {
+                this.entries = this.entries.filter(e => e.id !== id);
+                this.saveLocal();
+                return;
+            }
+            await this.runDbOperation(() => deleteItem(id));
         },
     },
     template: `
         <h2>Your mood history</h2>
+        <p v-if="storageMessage" class="storage-status" role="status">{{ storageMessage }}</p>
+        <p v-if="loading" class="history-empty">Loading your entries…</p>
+        <p v-else-if="entries.length === 0" class="history-empty">No entries yet. Mark your mood with the form.</p>
         <div class="cards">
             <MoodEntry
                 v-for="entry in sortedEntries"
@@ -242,12 +534,15 @@ const historyApp = Vue.createApp({
                 :date="entry.DateTime"
                 :mood="entry.moodLevel"
                 :note="entry.note"
-                @cycle-mood="cycleMood(entry.id)" />
+                @cycle-mood="cycleMood(entry.id)"
+                @delete="deleteEntry(entry.id)" />
         </div>`,
 });
 
 const historyVm = historyApp.mount('#history');
 
+
+/* ===================== Form ===================== */
 
 const form = document.querySelector('#mood-form');
 const dateInput = document.querySelector('#mood-date');
@@ -273,15 +568,18 @@ moodInput.addEventListener('input', () => {
 
 noteInput.addEventListener('input', updNoteCounter);
 
-// form submit: adds a new record without reloading the page
-form.addEventListener('submit', event => {
+// form submit: saves a new record without reloading the page
+form.addEventListener('submit', async event => {
     event.preventDefault();
 
     const date = new Date(`${dateInput.value}T00:00`);
     const moodLevel = Number(moodInput.value);
     const note = noteInput.value.trim();
 
-    historyVm.addEntry(new MoodCard(moodLevel, note, date));
+    const saved = await historyVm.addEntry(new MoodCard(moodLevel, note, date));
+    if (!saved) {
+        return; // keep what the user typed so they can retry
+    }
 
     form.reset();
     moodInput.setCustomValidity('');
